@@ -2,7 +2,7 @@
 '''
 OPS445 Assignment 2
 Program: assignment2.py 
-Author: "Joy Otchere"
+Student ID: "Joy Otchere"
 Semester: "Fall 2024"
 
 The python code in this file is original work written by
