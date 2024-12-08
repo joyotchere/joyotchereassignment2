@@ -19,19 +19,25 @@ Description: <Enter your documentation here>
 
 import argparse
 import os, sys
+import psutil
 
 def parse_command_args() -> object:
     "Set up argparse here. Call this function inside main."
-    parser = argparse.ArgumentParser(description="Memory Visualiser -- See Memory Usage Report with bar charts",epilog="Copyright 2023")
+    parser = argparse.ArgumentParser(description="Memory Visualiser -- See Memory Usage Report with bar charts", epilog="Copyright 2023")
+    
+    # Add argument for graph length
     parser.add_argument("-l", "--length", type=int, default=20, help="Specify the length of the graph. Default is 20.")
-    # add argument for "human-readable". USE -H, don't use -h! -h is reserved for --help which is created automatically.
-    # check the docs for an argparse option to store this as a boolean.
-    parser.add_argument("program", type=str, nargs='?', help="if a program is specified, show memory use of all associated processes. Show only total use is not.")
+    
+    # Add argument for human-readable format
+    parser.add_argument("-H", "--human-readable", action="store_true", help="Print memory usage in human-readable format (e.g., MB, GB).")
+    
+    # Optional argument for a specific program
+    parser.add_argument("program", type=str, nargs="?", help="If a program is specified, show memory use of all associated processes. Show only total use if not.")
+    
+    # Parse arguments
     args = parser.parse_args()
     return args
-# create argparse function
-# -H human readable
-# -r running only
+
 
 def percent_to_graph(percent: float, length: int=20) -> str:
     """
@@ -96,12 +102,44 @@ def get_avail_mem() -> int:
     return 0
 
 def pids_of_prog(app_name: str) -> list:
-    "given an app name, return all pids associated with app"
-    ...
+    "Given an app name, return all pids associated with the app using pidof"
+    pids = []
+    try:
+        # Use os.popen to call the pidof command
+        result = os.popen(f"pidof {app_name}").read().strip()
+        
+        # Check if the result is not empty
+        if result:
+            pids = result.split()  # Split the result by spaces to get individual PIDs
+    except Exception as e:
+        print(f"Error retrieving PIDs for {app_name}: {e}")
+    return pids
 
-def rss_mem_of_pid(proc_id: str) -> int:
-    "given a process id, return the resident memory used, zero if not found"
-    ...
+def rss_mem_of_pid(proc_id: str = '74168') -> int:
+    try:
+        smaps_file = f"/proc/{proc_id}/smaps"
+        total_rss = 0
+        with open(smaps_file, 'r') as file:
+            for line in file:
+                print(f"Processing line: {line.strip()}")  # Debugging
+                if line.startswith("VmRSS:"):
+                    parts = line.split()
+                    if len(parts) >= 2 and parts[1].isdigit():
+                        total_rss += int(parts[1])
+                        print(f"Added {parts[1]} KB to total RSS.")
+        print(f"Total RSS calculated: {total_rss}")
+        return total_rss
+    except Exception as e:
+        print(f"Error: {e}")
+        return 0
+
+
+
+
+
+
+
+
 
 def bytes_to_human_r(kibibytes: int, decimal_places: int=2) -> str:
     "turn 1,024 into 1 MiB, for example"
