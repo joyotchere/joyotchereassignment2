@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-
 '''
 OPS445 Assignment 2
 Program: assignment2.py 
-Author: "Student Name"
-Semester: "Enter Winter/Summer/Fall Year"
+Author: "Joy Otchere"
+Semester: "Fall 2024"
 
 The python code in this file is original work written by
-"Student Name". No code in this file is copied from any other source 
+"Joy Otchere". No code in this file is copied from any other source 
 except those provided by the course instructor, including any person, 
 textbook, or on-line resource. I have not shared this python script 
 with anyone or anything except for submission for grading.  
@@ -35,17 +34,66 @@ def parse_command_args() -> object:
 # -r running only
 
 def percent_to_graph(percent: float, length: int=20) -> str:
-    "turns a percent 0.0 - 1.0 into a bar graph"
-    ...
+    """
+    Converts a percentage value into a string representation of that percentage.
+    The string will consist of "#" symbols for the percentage, and spaces for the remaining portion.
+    
+    Parameters:
+    percent (float): The percentage to represent as a graph.
+    length (int): The total length of the graph.
+
+    Returns:
+    str: A string representation of the percentage.
+    """
+    # Ensure percent is within the 0-100 range
+    if percent < 0:
+        percent = 0
+    elif percent > 100:
+        percent = 100
+
+    # Calculate the number of '#' symbols, ensuring it fits within the given length
+    hashes = int(percent * (length - 1) / 100)  # Use (length - 1) to leave space for the final character
+    spaces = length - hashes  # The remaining characters are spaces
+
+    # Return the graph
+    return "#" * hashes + " " * spaces
+
+
+
+
+
+
 # percent to graph function
 
 def get_sys_mem() -> int:
-    "return total system memory (used or available) in kB"
-    ...
+    """
+    Returns the entire system memory (used or available) in kB.
+    
+    Obtains the entire amount of system memory from /proc/meminfo.
+    
+    Returns:
+        int: Entire system memory in kB.
+    """
+    with open("/proc/meminfo", "r") as meminfo:
+        for line in meminfo:
+            if line.startswith("MemTotal:"):
+                return int(line.split()[1])
+    return 0
 
 def get_avail_mem() -> int:
-    "return total memory that is available"
-    ...
+    """
+    Returns the memory that is currently available.
+    
+    Obtains the system memory that is available from /proc/meminfo.
+    
+    Returns:
+        int: Available system memory in kB.
+    """
+    with open("/proc/meminfo", "r") as meminfo:
+        for line in meminfo:
+            if line.startswith("MemAvailable:"):
+                return int(line.split()[1])
+    return 0
 
 def pids_of_prog(app_name: str) -> list:
     "given an app name, return all pids associated with app"
