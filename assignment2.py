@@ -19,7 +19,7 @@ Description: <Enter your documentation here>
 
 import argparse
 import os, sys
-import psutil
+
 
 def parse_command_args() -> object:
     "Set up argparse here. Call this function inside main."
